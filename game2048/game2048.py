@@ -17,8 +17,9 @@ class Game2048(object):
         self.board_y_offset = 0
 
         self.board_number = [[0, 1, 0, 0], [0, 3, 0, 0], [0, 2, 0, 0], [0, 0, 1, 1]]
-        self.board_color = [[197, 185, 173], [229 ,219, 209], [228, 215, 192], [233, 170, 116], [235, 143, 95], [236, 119, 91], [236, 90, 57], [228, 199, 110]]
+        self.board_color = [[197, 185, 173], [229 ,219, 209], [228, 215, 192], [233, 170, 116], [235, 143, 95], [236, 119, 91], [236, 90, 57], [228, 199, 110], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255]]
 
+        self.score = 0
 
         if self.render:
             self.window = pyglet.window.Window(self.window_width, self.window_height)
@@ -113,6 +114,7 @@ class Game2048(object):
     def update_line(self, line):
         #print("start")
         #print(line)
+        score = 0
         res_line = []
         i = 0
         while i < 4:
@@ -130,6 +132,7 @@ class Game2048(object):
                     continue
                 if line[i] == line[j]:
                     n = line[i] + 1
+                    score += 2**n
                     res_line.append(n)
                     i = j + 1
                     break
@@ -140,19 +143,23 @@ class Game2048(object):
         res_line += [0 for i in range(4 - len(res_line))]
         #print(res_line)
         #print("end")
-        return res_line
+        return res_line, score
 
     def update_board(self, direction, update=True):
+        score = 0
+
         if direction == 0:   # up
             invalid_flag = True
             for i in range(4):
                 pre_line = [b[i] for b in self.board_number]
-                pro_line = self.update_line(pre_line)
+                pro_line, tmp_score = self.update_line(pre_line)
+                score += tmp_score
                 if pre_line != pro_line:
                     invalid_flag = False
                 if update:
                     for j in range(4):
                         self.board_number[j][i] = pro_line[j]
+                        self.score += score
             if invalid_flag:
                 return -1
         elif direction == 1:   # right
@@ -160,13 +167,15 @@ class Game2048(object):
             for i in range(4):
                 pre_line = [b for b in self.board_number[i]]
                 pre_line.reverse()
-                pro_line = self.update_line(pre_line)
+                pro_line, tmp_score = self.update_line(pre_line)
+                score += tmp_score
                 if pre_line != pro_line:
                     invalid_flag = False
                 pro_line.reverse()
                 if update:
                     for j in range(4):
                         self.board_number[i][j] = pro_line[j]
+                        self.score += score
             if invalid_flag:
                 return -1
         elif direction == 2:   # down
@@ -174,25 +183,29 @@ class Game2048(object):
             for i in range(4):
                 pre_line = [b[i] for b in self.board_number]
                 pre_line.reverse()
-                pro_line = self.update_line(pre_line)
+                pro_line, tmp_score = self.update_line(pre_line)
+                score += tmp_score
                 if pre_line != pro_line:
                     invalid_flag = False
                 pro_line.reverse()
                 if update:
                     for j in range(4):
                         self.board_number[j][i] = pro_line[j]
+                        self.score += score
             if invalid_flag:
                 return -1
         elif direction == 3:   # left
             invalid_flag = True
             for i in range(4):
                 pre_line = [b for b in self.board_number[i]]
-                pro_line = self.update_line(pre_line)
+                pro_line, tmp_score = self.update_line(pre_line)
+                score += tmp_score
                 if pre_line != pro_line:
                     invalid_flag = False
                 if update:
                     for j in range(4):
                         self.board_number[i][j] = pro_line[j]
+                        self.score += score
             if invalid_flag:
                 return -1
         return 0
@@ -202,6 +215,7 @@ class Game2048(object):
         if invalid_flag:
             return
 
+        #print("score : {}".format(self.score))
         if pop_number:
             # check if game is finished
             finish_flag = True
@@ -215,6 +229,7 @@ class Game2048(object):
             if finish_flag:
                 print("finish by no area remaining")
                 self.finish_flag = True
+                print("score : {}".format(self.score))
                 return
 
             while True:
@@ -237,12 +252,13 @@ class Game2048(object):
             if finish_flag:
                 for i in range(4):
                     if self.update_board(i, update=False) == 0:
-                        print("safe with directoin: {}".format(i))
+                        #print("safe with directoin: {}".format(i))
                         finish_flag = False
                         break
             if finish_flag:
                 print("finish by not be able to move")
                 self.finish_flag = True
+                print("score : {}".format(self.score))
                 return
 
     def loop(self, manual=False):
@@ -251,6 +267,7 @@ class Game2048(object):
             if not manual:
                 a = random.randint(0, 3)
                 self.step(a)
+        print("score : {}".format(self.score))
         self.close()
 
     def close(self):
