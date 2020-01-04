@@ -1,4 +1,6 @@
 # coding: utf-8
+
+import argparse
 import pyglet
 from pyglet.window import key
 import random
@@ -243,9 +245,12 @@ class Game2048(object):
                 self.finish_flag = True
                 return
 
-    def loop(self):
+    def loop(self, manual=False):
         while not self.finish_flag:
             self.draw()
+            if not manual:
+                a = random.randint(0, 3)
+                self.step(a)
         self.close()
 
     def close(self):
@@ -256,46 +261,20 @@ class Game2048(object):
         while not self.enter:
             self.draw()
 
-import gym
-class Game2048Env(gym.Env):
-    def __init__(self, render=True):
-        self.game = Game2048(render)
+def main():
+    parser = argparse.ArgumentParser(description='')
+    parser.add_argument('-a', '--automatic', action='store_true', help='automatic random mode (default)')
+    parser.add_argument('-m', '--manual', action='store_true', help='manual mode')
+    args = parser.parse_args()
 
-    def manual(self):
-        self.game.loop()
+    game = Game2048(True)
 
-    def render(self):
-        self.game.draw()
-
-    def step(self, action):
-        if not action in [0, 1, 2, 3]:
-            raise Exception
-        self.game.step(action)
-
-        observation = self.game.board_number
-        reward = 0
-        done = self.game.finish_flag
-
-        return observation, reward, done, {}
-
-    def reset(self):
-        return self.game.board_number
-
-    def close(self):
-        self.game.close()
-
-def main1():
-    game = Game2048()
-    game.loop()
-
-def main2():
-    env = Game2048Env(render=False)
-    while not env.game.finish_flag:
-        a = random.randint(0, 3)
-        env.render()
-        env.step(a)
-
-    env.close()
+    if args.automatic:
+        game.loop(False)
+    elif args.manual:
+        game.loop(True)
+    else:
+        game.loop(False)
 
 if __name__ == "__main__":
-    main2()
+    main()
