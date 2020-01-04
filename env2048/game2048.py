@@ -1,9 +1,12 @@
 # coding: utf-8
 import pyglet
 from pyglet.window import key
+import random
 
-class Game2048Renderer(object):
-    def __init__(self):
+class Game2048(object):
+    def __init__(self, render=True):
+        self.render = render
+
         self.window_width = 540
         self.window_height = 640
 
@@ -15,8 +18,11 @@ class Game2048Renderer(object):
         self.board_color = [[197, 185, 173], [229 ,219, 209], [228, 215, 192], [233, 170, 116], [235, 143, 95], [236, 119, 91], [236, 90, 57], [228, 199, 110]]
 
 
-        self.window = pyglet.window.Window(self.window_width, self.window_height)
-        self.window.set_caption('This is a pyglet sample')
+        if self.render:
+            self.window = pyglet.window.Window(self.window_width, self.window_height)
+            self.window.set_caption('This is a pyglet sample')
+        else:
+            self.window = pyglet.window.Window(1, 1)
 
         self.quad_list = []
         self.number_list = []
@@ -83,6 +89,9 @@ class Game2048Renderer(object):
         '''
 
     def draw(self):
+        if not self.render:
+            return
+
         self.window.clear()
         #self.window.switch_to()
         self.window.dispatch_events()
@@ -237,40 +246,56 @@ class Game2048Renderer(object):
     def loop(self):
         while not self.finish_flag:
             self.draw()
+        self.close()
+
+    def close(self):
+        if not self.render:
+            return
 
         print("press enter")
         while not self.enter:
             self.draw()
 
 import gym
-import random
 class Game2048Env(gym.Env):
-    def __init__(self):
-        self.renderer = Game2048Renderer()
+    def __init__(self, render=True):
+        self.game = Game2048(render)
 
     def manual(self):
-        self.renderer.loop()
+        self.game.loop()
+
+    def render(self):
+        self.game.draw()
 
     def step(self, action):
         if not action in [0, 1, 2, 3]:
             raise Exception
-        self.renderer.update_board(action)
+        self.game.step(action)
 
-        observation = self.renderer.board_number
+        observation = self.game.board_number
         reward = 0
-        done = self.renderer.finish_flag
+        done = self.game.finish_flag
 
         return observation, reward, done, {}
 
     def reset(self):
-        return self.renderer.board_number
+        return self.game.board_number
+
+    def close(self):
+        self.game.close()
 
 def main1():
-    renderer = Game2048Renderer()
-    renderer.loop()
+    game = Game2048()
+    game.loop()
 
 def main2():
-    env = Game2048Env()
+    env = Game2048Env(render=False)
+    while not env.game.finish_flag:
+        a = random.randint(0, 3)
+        env.render()
+        env.step(a)
+
+    env.close()
 
 if __name__ == "__main__":
-    main1()
+    main2()
