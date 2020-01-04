@@ -64,9 +64,9 @@ class Game2048Env(gym.Env):
         done = self.game.finish_flag
 
         if not done:
-            reward = max([max(ns) for ns in self.game.board_number])
+            reward = 0.1   #max([max(ns) for ns in self.game.board_number])
         else:
-            reward = 0
+            reward = -10.0
 
         return observation, reward, done, {}
 

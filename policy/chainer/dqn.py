@@ -12,35 +12,40 @@ env = Game2048Env(False)
 
 
 class QFunction(chainer.Chain):
-    def __init__(self, obs_size, n_actions, n_hidden_channels=100):
+    def __init__(self, obs_size, n_actions):
         super(QFunction, self).__init__(##python2.x用
         #super().__init__(#python3.x用
-            l0=L.Linear(obs_size, n_hidden_channels),
-            l1=L.Linear(n_hidden_channels,n_hidden_channels),
-            l2=L.Linear(n_hidden_channels,n_hidden_channels),
-            l3=L.Linear(n_hidden_channels,n_hidden_channels),
-            l4=L.Linear(n_hidden_channels, n_actions))
+            l0=L.Linear(obs_size, 100),
+            l1=L.Linear(100, 100),
+            l2=L.Linear(100, 100),
+            l3=L.Linear(100, 50),
+            l4=L.Linear(50, 50),
+            l5=L.Linear(50, 10),
+            l6=L.Linear(10, n_actions))
 
     def __call__(self, x, test=False):
         """
         x ; 観測#ここの観測って、stateとaction両方？
         test : テストモードかどうかのフラグ
         """
-        h = F.tanh(self.l0(x)) #活性化関数は自分で書くの？
-        h = F.tanh(self.l1(h))
-        h = F.tanh(self.l2(h))
-        h = F.tanh(self.l3(h))
-        return chainerrl.action_value.DiscreteActionValue(self.l4(h))
+        h = F.relu(self.l0(x)) #活性化関数は自分で書くの？
+        h = F.relu(self.l1(h))
+        h = F.relu(self.l2(h))
+        h = F.relu(self.l3(h))
+        h = F.relu(self.l4(h))
+        h = F.relu(self.l5(h))
+
+        return chainerrl.action_value.DiscreteActionValue(self.l6(h))
 
 obs_size = env.observation_space.shape[0]
 n_actions = env.action_space.n
 q_func = QFunction(obs_size, n_actions)
 
-optimizer = chainer.optimizers.Adam(eps=1e-2)
+optimizer = chainer.optimizers.Adam(eps=1e-1)
 optimizer.setup(q_func) #設計したq関数の最適化にAdamを使う
 gamma = 0.95
 explorer = chainerrl.explorers.ConstantEpsilonGreedy(
-    epsilon=0.3, random_action_func=env.action_space.sample)
+    epsilon=0.1, random_action_func=env.action_space.sample)
 replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity = 10**6)
 phi = lambda x:x.astype(np.float32, copy=False)##型の変換(chainerはfloat32型。float64は駄目)
 
@@ -79,7 +84,6 @@ print('Finished, elapsed time : {}'.format(time.time()-start))
 print("TEST")
 env.game.make_window()
 while True:
-    print("PO")
     obs = env.reset()
     reward = 0
     done = False
@@ -87,6 +91,4 @@ while True:
         env.render()
         action = agent.act_and_train(obs, reward)
         obs, reward, done, _ = env.step(action)
-    print("PO")
     env.close()
-    print("PO")
