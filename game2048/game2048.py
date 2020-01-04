@@ -22,8 +22,9 @@ class Game2048(object):
         self.score = 0
 
         if self.render:
-            self.window = pyglet.window.Window(self.window_width, self.window_height)
-            self.window.set_caption('This is a pyglet sample')
+            self.make_window()
+            #self.window = pyglet.window.Window(self.window_width, self.window_height)
+            #self.window.set_caption('This is a pyglet sample')
         else:
             self.window = pyglet.window.Window(1, 1)
 
@@ -90,6 +91,10 @@ class Game2048(object):
                     self.number_list[i][j].text = board_number
                     self.number_list[i][j].draw()
         '''
+
+    def make_window(self):
+        self.window = pyglet.window.Window(self.window_width, self.window_height)
+        self.window.set_caption('This is a pyglet sample')
 
     def draw(self):
         if not self.render:
