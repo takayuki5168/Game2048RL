@@ -1,6 +1,14 @@
 ## How To Use
-### Manual Mode
+### Quick Start
+- Automatic Mode (Random Action)
 ```
+$ python game2048/game2048.py -a
+```
+- Manual Mode
+```
+$ python game2048/game2048.py -m
 ```
 
-### Learning Mode
+### Learn with gym.Env
+```
+```

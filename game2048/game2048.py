@@ -22,9 +22,8 @@ class Game2048(object):
         self.score = 0
 
         if self.render:
-            self.make_window()
-            #self.window = pyglet.window.Window(self.window_width, self.window_height)
-            #self.window.set_caption('This is a pyglet sample')
+            self.window = pyglet.window.Window(self.window_width, self.window_height)
+            self.window.set_caption('This is a pyglet sample')
         else:
             self.window = pyglet.window.Window(1, 1)
 
@@ -93,7 +92,9 @@ class Game2048(object):
         '''
 
     def make_window(self):
-        self.window = pyglet.window.Window(self.window_width, self.window_height)
+        self.render = True
+        self.window.width = self.window_width
+        self.window.height = self.window_height
         self.window.set_caption('This is a pyglet sample')
 
     def draw(self):
@@ -234,7 +235,7 @@ class Game2048(object):
             if finish_flag:
                 print("finish by no area remaining")
                 self.finish_flag = True
-                print("score : {}".format(self.score))
+                print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
                 return
 
             while True:
@@ -263,7 +264,7 @@ class Game2048(object):
             if finish_flag:
                 print("finish by not be able to move")
                 self.finish_flag = True
-                print("score : {}".format(self.score))
+                print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
                 return
 
     def loop(self, manual=False):
@@ -272,7 +273,7 @@ class Game2048(object):
             if not manual:
                 a = random.randint(0, 3)
                 self.step(a)
-        print("score : {}".format(self.score))
+        #print("score : {}".format(self.score))
         self.close()
 
     def close(self):

@@ -51,7 +51,7 @@ agent = chainerrl.agents.DoubleDQN(
 
 
 import time
-n_episodes = 2000
+n_episodes = 1000
 start = time.time()
 for i in range(1, n_episodes + 1):
     obs = env.reset()
@@ -76,11 +76,17 @@ print('Finished, elapsed time : {}'.format(time.time()-start))
 
 
 ## test
-env.make_window()
-obs = env.reset()
-reward = 0
-done = False
-while not done:
-    env.render()
-    action = agent.act_and_train(obs, reward)
-    obs, reward, done, _ = env.step(action)
+print("TEST")
+env.game.make_window()
+while True:
+    print("PO")
+    obs = env.reset()
+    reward = 0
+    done = False
+    while not done:
+        env.render()
+        action = agent.act_and_train(obs, reward)
+        obs, reward, done, _ = env.step(action)
+    print("PO")
+    env.close()
+    print("PO")
