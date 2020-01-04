@@ -11,7 +11,8 @@ class Game2048Renderer(object):
         self.board_x_offset = (self.window_width - self.board_size) / 2.0
         self.board_y_offset = 0
 
-        self.board_number = [[-1, 1, -1, -1], [-1, 3, -1, -1], [-1, 2, -1, -1], [-1, -1, 1, 1]]
+        self.board_number = [[0, 1, 0, 0], [0, 3, 0, 0], [0, 2, 0, 0], [0, 0, 1, 1]]
+        self.board_color = [[197, 185, 173], [229 ,219, 209], [228, 215, 192], [233, 170, 116], [235, 143, 95], [236, 119, 91], [236, 90, 57], [228, 199, 110]]
 
 
         self.window = pyglet.window.Window(self.window_width, self.window_height)
@@ -29,11 +30,11 @@ class Game2048Renderer(object):
                 y = self.board_y_offset + self.board_size / d * 1 + self.board_size / d * (4 - j) * (10 + 1)
                 box_size = self.board_size / d * 10
 
-                board_number = "" if self.board_number[j][i] == -1 else str(2**self.board_number[j][i])
+                board_number = "" if self.board_number[j][i] == 0 else str(2**self.board_number[j][i])
                 self.number_list[i].append(pyglet.text.Label(board_number, font_name="Arial", font_size=32, x=x + box_size / 2.0, y=y + box_size / 2.0, anchor_x='center', anchor_y='center', color=(0,0,0,255))) #, batch=batch,group=None))
                 self.quad_list[i].append(pyglet.graphics.vertex_list(4,
                                                                 ('v2f', [x, y, x + box_size, y, x + box_size, y + box_size, x, y + box_size]),
-                                                                ('c3B', [255, 255, 255] * 4)))
+                                                                ('c3B', self.board_color[0] * 4)))
 
         self.finish_flag = False
         self.enter = False
@@ -76,7 +77,7 @@ class Game2048Renderer(object):
                     self.quad_list[i][j].colors = color * 4
                     self.quad_list[i][j].draw(pyglet.gl.GL_QUADS)
 
-                    board_number = "" if self.board_number[j][i] == -1 else str(2**self.board_number[j][i])
+                    board_number = "" if self.board_number[j][i] == 0 else str(2**self.board_number[j][i])
                     self.number_list[i][j].text = board_number
                     self.number_list[i][j].draw()
         '''
@@ -88,30 +89,30 @@ class Game2048Renderer(object):
 
         for i in range(len(self.board_number)):
             for j in range(len(self.board_number[i])):
-                color = [255, 255, 255]
+                color = self.board_color[self.board_number[j][i]]
                 self.quad_list[i][j].colors = color * 4
                 self.quad_list[i][j].draw(pyglet.gl.GL_QUADS)
 
-                board_number = "" if self.board_number[j][i] == -1 else str(2**self.board_number[j][i])
+                board_number = "" if self.board_number[j][i] == 0 else str(2**self.board_number[j][i])
                 self.number_list[i][j].text = board_number
                 self.number_list[i][j].draw()
 
         self.window.flip()
 
     def update_line(self, line):
-        print("start")
-        print(line)
+        #print("start")
+        #print(line)
         res_line = []
         i = 0
         while i < 4:
-            if line[i] == -1:
+            if line[i] == 0:
                 i += 1
                 continue
             if i == 3:
                 res_line.append(line[i])
                 break
             for j in range(i + 1, 4):
-                if line[j] == -1:
+                if line[j] == 0:
                     if j == 3:
                         res_line.append(line[i])
                         i += 1
@@ -125,9 +126,9 @@ class Game2048Renderer(object):
                     res_line.append(line[i])
                     i = j
                     break
-        res_line += [-1 for i in range(4 - len(res_line))]
-        print(res_line)
-        print("end")
+        res_line += [0 for i in range(4 - len(res_line))]
+        #print(res_line)
+        #print("end")
         return res_line
 
     def update_board(self, direction, update=True):
@@ -195,7 +196,7 @@ class Game2048Renderer(object):
             finish_flag = True
             for i in range(4):
                 for j in range(4):
-                    if self.board_number[i][j] == -1:
+                    if self.board_number[i][j] == 0:
                         finish_flag = False
                         break
                 if not finish_flag:
@@ -208,7 +209,7 @@ class Game2048Renderer(object):
             while True:
                 x = random.randint(0, 3)
                 y = random.randint(0, 3)
-                if self.board_number[x][y] == -1:
+                if self.board_number[x][y] == 0:
                     n = random.randint(1, 2)
                     self.board_number[x][y] = n
                     break
@@ -217,7 +218,7 @@ class Game2048Renderer(object):
             finish_flag = True
             for i in range(4):
                 for j in range(4):
-                    if self.board_number[i][j] == -1:
+                    if self.board_number[i][j] == 0:
                         finish_flag = False
                         break
                 if not finish_flag:
