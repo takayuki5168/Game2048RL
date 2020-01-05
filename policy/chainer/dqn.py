@@ -70,8 +70,10 @@ q_func = QFunction(obs_size, n_actions)
 optimizer = chainer.optimizers.Adam(eps=1e-1)
 optimizer.setup(q_func) #設計したq関数の最適化にAdamを使う
 gamma = 0.95
-explorer = chainerrl.explorers.ConstantEpsilonGreedy(
-    epsilon=0.5, random_action_func=env.action_space.sample)
+# explorer = chainerrl.explorers.ConstantEpsilonGreedy(
+#     epsilon=0.5, random_action_func=env.action_space.sample)
+explorer = chainerrl.explorers.LinearDecayEpsilonGreedy(
+    start_epsilon=0.9, end_epsilon=0.3, decay_steps=1000 * 100, random_action_func=env.action_space.sample)
 replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity = 10**6)
 phi = lambda x:x.astype(np.float32, copy=False)##型の変換(chainerはfloat32型。float64は駄目)
 
