@@ -58,12 +58,14 @@ class Game2048Env(gym.Env):
     def step(self, action):
         if not action in [0, 1, 2, 3]:
             raise Exception
-        self.game.step(action)
+        ret = self.game.step(action)
 
         #observation = np.array(self.game.board_number)
         observation = self.transform_board(self.game.board_number)
         done = self.game.finish_flag
 
+        if ret == -1:
+            reward = -0.1
         if not done:
             reward = 0.1   #max([max(ns) for ns in self.game.board_number])
         else:

@@ -219,8 +219,8 @@ class Game2048(object):
 
     def step(self, direction, pop_number=True):
         invalid_flag = self.update_board(direction, update=True)
-        if invalid_flag:
-            return
+        if invalid_flag == -1:
+            return -1
 
         #print("score : {}".format(self.score))
         if pop_number:
@@ -237,7 +237,7 @@ class Game2048(object):
                 print("finish by no area remaining")
                 self.finish_flag = True
                 print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
-                return
+                return 0
 
             while True:
                 x = random.randint(0, 3)
@@ -266,7 +266,7 @@ class Game2048(object):
                 print("finish by not be able to move")
                 self.finish_flag = True
                 print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
-                return
+                return 0
 
     def loop(self, manual=False):
         while not self.finish_flag:
