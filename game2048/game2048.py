@@ -4,6 +4,7 @@ import argparse
 import pyglet
 from pyglet.window import key
 import random
+import copy
 
 class Game2048(object):
     def __init__(self, render=True):
@@ -17,6 +18,7 @@ class Game2048(object):
         self.board_y_offset = 0
 
         #self.board_number = [[0, 1, 0, 0], [0, 3, 0, 0], [0, 2, 0, 0], [0, 0, 1, 1]]
+        self.pre_board_number = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         self.board_number = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]]
         self.board_color = [[197, 185, 173], [229 ,219, 209], [228, 215, 192], [233, 170, 116], [235, 143, 95], [236, 119, 91], [236, 90, 57], [228, 199, 110], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255]]
 
@@ -92,6 +94,22 @@ class Game2048(object):
                     self.number_list[i][j].draw()
         '''
 
+    def calc_empty(self, board_number):
+        sum_empty = 0
+        for i in range(4):
+            for j in range(4):
+                if board_number[i][j] == 0:
+                    sum_empty += 1
+        return sum_empty
+
+    def calc_max(self, board_number):
+        max_num = 0
+        for i in range(4):
+            for j in range(4):
+                if board_number[i][j] > max_num:
+                    max_num = board_number[i][j]
+        return max_num
+
     def make_window(self):
         self.render = True
         self.window.width = self.window_width
@@ -153,6 +171,7 @@ class Game2048(object):
         return res_line, score
 
     def update_board(self, direction, update=True):
+        self.pre_board_number = copy.deepcopy(self.board_number)
         score = 0
 
         if direction == 0:   # up

@@ -60,16 +60,28 @@ class Game2048Env(gym.Env):
             raise Exception
         ret = self.game.step(action)
 
-        #observation = np.array(self.game.board_number)
+        # calculate observation and done
         observation = self.transform_board(self.game.board_number)
         done = self.game.finish_flag
 
+        # calclate indices for reward
+        previous_empty = self.game.calc_empty(self.game.pre_board_number)
+        current_empty = self.game.calc_empty(self.game.board_number)
+        diff_empty = current_empty - previous_empty
+
+        previous_max = self.game.calc_max(self.game.pre_board_number)
+        current_max = self.game.calc_max(self.game.board_number)
+        diff_max = current_max - previous_max
+
+        # calculate reward
         if ret == -1:
             reward = -0.1
         if not done:
-            reward = 0.1   #max([max(ns) for ns in self.game.board_number])
+            reward = 0.1
+            # reward = diff_max * 0.1 + diff_empty
         else:
             reward = -10.0
+        reward += diff_empty
 
         return observation, reward, done, {}
 
