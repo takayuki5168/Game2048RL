@@ -52,7 +52,8 @@ class Agent(object):
             if i % 10 == 0:
                 print('episode:', i,
                       'R:', R / 10.0,
-                      'statistics:', self.agent.get_statistics())
+                      'statistics:', self.agent.get_statistics(),
+                      'epsilon:', self.agent.explorer.epsilon)
                 R = 0  # return (sum of rewards)
             self.agent.stop_episode_and_train(obs, reward, done)
         print('Finished, elapsed time : {}'.format(time.time()-start))
