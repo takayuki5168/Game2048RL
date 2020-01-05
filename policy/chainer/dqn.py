@@ -15,12 +15,16 @@ class QFunction(chainer.Chain):
     def __init__(self, obs_size, n_actions):
         super(QFunction, self).__init__(##python2.x用
         #super().__init__(#python3.x用
-            conv1 = L.Convolution2D(None, 128, ksize=(1, 2)),
-            conv2 = L.Convolution2D(None, 128, ksize=(2, 1)),
-            conv3 = L.Convolution2D(None, 128, ksize=(2, 2)),
+            conv11 = L.Convolution2D(16, 64, ksize=(1, 2)),
+            conv12 = L.Convolution2D(None, 128, ksize=(1, 2)),
+            conv13 = L.Convolution2D(None, 256, ksize=(4, 2)),
 
-            l1=L.Linear(None, 100),
-            l2=L.Linear(None, 100),
+            conv21 = L.Convolution2D(16, 64, ksize=(2, 1)),
+            conv22 = L.Convolution2D(None, 128, ksize=(2, 1)),
+            conv23 = L.Convolution2D(None, 256, ksize=(2, 4)),
+
+            l1=L.Linear(None, 256),
+            l2=L.Linear(None, 128),
             l3=L.Linear(None, n_actions))
 
     def __call__(self, x, test=False):
@@ -28,10 +32,32 @@ class QFunction(chainer.Chain):
         x ; 観測#ここの観測って、stateとaction両方？
         test : テストモードかどうかのフラグ
         """
-        h = F.relu(self.conv1(x))
-        h = F.relu(self.conv2(x))
-        #pool1 = F.max_pooling_2d(conv1_2, ksize=2, stride=2)
-        h = F.relu(self.conv3(h))
+
+        debug_print = False
+        if debug_print: print(x.shape)
+        h1 = F.relu(self.conv11(x))
+        if debug_print: print(h1.shape)
+        h1 = F.relu(self.conv12(h1))
+        if debug_print: print(h1.shape)
+        h1 = F.relu(self.conv13(h1))
+        if debug_print: print(h1.shape)
+
+        if debug_print: print(x.shape)
+        h2 = F.relu(self.conv21(x))
+        if debug_print: print(h2.shape)
+        h2 = F.relu(self.conv22(h2))
+        if debug_print: print(h2.shape)
+        h2 = F.relu(self.conv23(h2))
+        if debug_print: print(h2.shape)
+
+        if debug_print: print("PO")
+
+        h = F.concat((h1, h2))
+        if debug_print: print(h.shape)
+        h = h.reshape((-1, 512))
+        if debug_print: print(h.shape)
+
+        if debug_print: print(h.shape)
         h = F.relu(self.l1(h))
         h = F.relu(self.l2(h))
 
@@ -46,7 +72,7 @@ optimizer.setup(q_func) #設計したq関数の最適化にAdamを使う
 gamma = 0.95
 explorer = chainerrl.explorers.ConstantEpsilonGreedy(
     epsilon=0.5, random_action_func=env.action_space.sample)
-replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity = 6000) #10**6)
+replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity = 10**6)
 phi = lambda x:x.astype(np.float32, copy=False)##型の変換(chainerはfloat32型。float64は駄目)
 
 agent = chainerrl.agents.DoubleDQN(

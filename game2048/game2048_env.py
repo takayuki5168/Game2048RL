@@ -83,11 +83,11 @@ class Game2048Env(gym.Env):
         return self.transform_board(self.game.board_number)
 
     def transform_board(self, board):
-        res_board = [[[0 for i in range(16)] for j in range(4)] for k in range(4)]
+        res_board = [[[0 for j in range(4)] for k in range(4)] for i in range(16)]
         for i in range(4):
             for j in range(4):
                 n = board[i][j]
-                res_board[i][j][n] = 1
+                res_board[n][i][j] = 1
         return np.array(res_board)
 
     def close(self):
