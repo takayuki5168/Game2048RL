@@ -7,6 +7,16 @@ import random
 import copy
 
 class Game2048(object):
+    def reset(self):
+        self.board_number = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]]
+        self.pre_board_number = copy.deepcopy(self.board_number)
+
+        self.score = 0
+
+        self.finish_flag = False
+        self.enter = False
+        self.pressed = False
+
     def __init__(self, render=True):
         self.render = render
 
@@ -17,12 +27,9 @@ class Game2048(object):
         self.board_x_offset = (self.window_width - self.board_size) / 2.0
         self.board_y_offset = 0
 
-        #self.board_number = [[0, 1, 0, 0], [0, 3, 0, 0], [0, 2, 0, 0], [0, 0, 1, 1]]
-        self.pre_board_number = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-        self.board_number = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]]
-        self.board_color = [[197, 185, 173], [229 ,219, 209], [228, 215, 192], [233, 170, 116], [235, 143, 95], [236, 119, 91], [236, 90, 57], [228, 199, 110], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255]]
+        self.reset()
 
-        self.score = 0
+        self.board_color = [[197, 185, 173], [229 ,219, 209], [228, 215, 192], [233, 170, 116], [235, 143, 95], [236, 119, 91], [236, 90, 57], [228, 199, 110], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255], [255, 255, 255]]
 
         if self.render:
             self.window = pyglet.window.Window(self.window_width, self.window_height)
@@ -47,10 +54,6 @@ class Game2048(object):
                 self.quad_list[i].append(pyglet.graphics.vertex_list(4,
                                                                 ('v2f', [x, y, x + box_size, y, x + box_size, y + box_size, x, y + box_size]),
                                                                 ('c3B', self.board_color[0] * 4)))
-
-        self.finish_flag = False
-        self.enter = False
-        self.pressed = False
 
         @self.window.event
         def on_key_press(symbol, modifiers):

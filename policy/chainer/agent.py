@@ -36,25 +36,32 @@ class Agent(object):
         import time
         n_episodes = 1000
         start = time.time()
-        R = 0  # return (sum of rewards)
+        reward_sum = 0  # return (sum of rewards)
+
+        max_score = 0
+        max_score_episode = 0
         for i in range(1, n_episodes + 1):
             obs = self.env.reset()
             reward = 0
             done = False
             t = 0  # time step
             while not done:
-                # 動きを見たければここのコメントを外す
                 self.env.render()
                 action = self.agent.act_and_train(obs, reward)
                 obs, reward, done, _ = self.env.step(action)
-                R += reward
+                reward_sum += reward
                 t += 1
+            if max_score < self.env.game.score:
+                max_score = self.env.game.score
+                max_score_episode = i
+
             if i % 10 == 0:
                 print('episode:', i,
-                      'R:', R / 10.0,
+                      'reward_sum:', reward_sum / 10.0,
                       'statistics:', self.agent.get_statistics(),
-                      'epsilon:', self.agent.explorer.epsilon)
-                R = 0  # return (sum of rewards)
+                      'epsilon:', self.agent.explorer.epsilon,
+                      'max_score:', max_score, max_score_episode)
+                reward_sum = 0
             self.agent.stop_episode_and_train(obs, reward, done)
         print('Finished, elapsed time : {}'.format(time.time()-start))
 

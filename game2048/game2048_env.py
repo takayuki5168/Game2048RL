@@ -92,15 +92,9 @@ class Game2048Env(gym.Env):
         return observation, reward, done, {}
 
     def reset(self):
-        self.game.board_number = [[0, 1, 0, 0], [0, 3, 0, 0], [0, 2, 0, 0], [0, 0, 1, 1]]
-        self.game.score = 0
+        self.game.reset()
         self.reward_sum = 0
 
-        self.game.finish_flag = False
-        self.game.enter = False
-        self.game.pressed = False
-
-        #return np.array(self.game.board_number)
         return self.transform_board(self.game.board_number)
 
     def transform_board(self, board):
