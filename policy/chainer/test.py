@@ -4,7 +4,7 @@ from agent import Agent
 
 def main():
     agent = Agent()
-    agent.train()
+    agent.test()
 
 if __name__== '__main__':
     main()
