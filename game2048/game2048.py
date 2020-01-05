@@ -255,7 +255,7 @@ class Game2048(object):
             if finish_flag:
                 print("finish by no area remaining")
                 self.finish_flag = True
-                print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
+                #print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
                 return 0
 
             while True:
@@ -284,7 +284,7 @@ class Game2048(object):
             if finish_flag:
                 print("finish by not be able to move")
                 self.finish_flag = True
-                print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
+                #print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
                 return 0
 
     def loop(self, manual=False):

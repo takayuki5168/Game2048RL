@@ -64,10 +64,11 @@ class Game2048Env(gym.Env):
         observation = self.transform_board(self.game.board_number)
         done = self.game.finish_flag
 
+
         # calclate indices for reward
         previous_empty = self.game.calc_empty(self.game.pre_board_number)
         current_empty = self.game.calc_empty(self.game.board_number)
-        diff_empty = current_empty - previous_empty
+        diff_empty = current_empty - previous_empty + 1   # +1 because one cell is added per step
 
         previous_max = self.game.calc_max(self.game.pre_board_number)
         current_max = self.game.calc_max(self.game.board_number)
@@ -75,19 +76,25 @@ class Game2048Env(gym.Env):
 
         # calculate reward
         if ret == -1:
-            reward = -0.1
-        if not done:
-            reward = 0.1
-            # reward = diff_max * 0.1 + diff_empty
+            reward = -0.01
+        elif not done:
+            #reward = 0.1
+            reward = (diff_max + diff_empty) * 0.01
         else:
-            reward = -10.0
-        reward += diff_empty
+            reward = -1.0
+
+        #print(reward)
+        self.reward_sum += reward
+        if done:
+            print("score: {}, max_number: {}, reward_sum: {}".format(self.game.score, 2**max([max(ns) for ns in self.game.board_number]), self.reward_sum))
+
 
         return observation, reward, done, {}
 
     def reset(self):
         self.game.board_number = [[0, 1, 0, 0], [0, 3, 0, 0], [0, 2, 0, 0], [0, 0, 1, 1]]
         self.game.score = 0
+        self.reward_sum = 0
 
         self.game.finish_flag = False
         self.game.enter = False
