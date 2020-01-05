@@ -75,10 +75,16 @@ class Game2048Env(gym.Env):
         diff_max = current_max - previous_max
 
         # calculate reward
-        if ret == -1:
-            reward = -0.01
-        elif not done:
-            #reward = 0.1
+        # TODO 1stepの平均が正になる必要あり，負だとstepが増えるにつれrewardが下がる
+
+        # if ret == -1:
+        #     reward = -0.00001
+        # elif not done:
+        #     #reward = 0.1
+        #     reward = (diff_max + diff_empty) * 0.01
+        # else:
+        #     reward = -1.0
+        if not done:
             reward = (diff_max + diff_empty) * 0.01
         else:
             reward = -1.0
