@@ -72,10 +72,11 @@ class Game2048Env(gym.Env):
 
         previous_max = self.game.calc_max(self.game.pre_board_number)
         current_max = self.game.calc_max(self.game.board_number)
-        diff_max = current_max - previous_max
+        diff_max = current_max if current_max > previous_max else 0
 
         # calculate reward
         # TODO 1stepの平均が正になる必要あり，負だとstepが増えるにつれrewardが下がる
+        # diff_maxの係数をあげたい, 64と128で報酬の差の合計があまり変わらない...
 
         # if ret == -1:
         #     reward = -0.00001
@@ -85,7 +86,8 @@ class Game2048Env(gym.Env):
         # else:
         #     reward = -1.0
         if not done:
-            reward = (diff_max + diff_empty) * 0.01
+            #reward = (diff_max + diff_empty) * 0.01
+            reward = diff_max * 0.05 + diff_empty * 0.0001
         else:
             reward = -1.0
 
