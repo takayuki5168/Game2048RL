@@ -87,9 +87,11 @@ class Game2048Env(gym.Env):
         #     reward = -1.0
         if not done:
             #reward = (diff_max + diff_empty) * 0.01
-            reward = diff_max * 0.05 + diff_empty * 0.0001
+            #reward = diff_max * 0.05 + diff_empty * 0.0001
+            reward = self.game.score - self.game.pre_score
         else:
-            reward = -1.0
+            #reward = -1.0
+            reward = 0
 
         #print(reward)
         self.reward_sum += reward

@@ -13,7 +13,7 @@ class Agent(object):
     def __init__(self):
         self.env = Game2048Env(False)
 
-        self.n_episodes = 10000
+        self.n_episodes = 3000
 
         obs_size = self.env.observation_space.shape[0]
         n_actions = self.env.action_space.n
@@ -25,7 +25,7 @@ class Agent(object):
         # explorer = chainerrl.explorers.ConstantEpsilonGreedy(
         #     epsilon=0.5, random_action_func=env.action_space.sample)
         explorer = chainerrl.explorers.LinearDecayEpsilonGreedy(
-            start_epsilon=0.6, end_epsilon=0.2, decay_steps=self.n_episodes * 100, random_action_func=self.env.action_space.sample)
+            start_epsilon=0.6, end_epsilon=0.1, decay_steps=self.n_episodes * 100, random_action_func=self.env.action_space.sample)
         replay_buffer = chainerrl.replay_buffer.ReplayBuffer(capacity=10**6)
         phi = lambda x:x.astype(np.float32, copy=False)##型の変換(chainerはfloat32型。float64は駄目)
 
@@ -37,10 +37,8 @@ class Agent(object):
 
     def train(self, model_path='sample'):
         print("[Train]")
-        self.agent.load(model_path)   # load model
 
         import time
-        self.n_episodes = 10000
         start = time.time()
         reward_sum = 0  # return (sum of rewards)
 
@@ -75,7 +73,7 @@ class Agent(object):
 
         #self.agent.save(model_path)   # save model
 
-    def test(self, model_path='sample/epoch8900'):
+    def test(self, model_path='sample/epoch4100'):
         print("[Test]")
         self.agent.load(model_path)   # load model
 

@@ -12,6 +12,7 @@ class Game2048(object):
         self.pre_board_number = copy.deepcopy(self.board_number)
 
         self.score = 0
+        self.pre_score = 0
 
         self.finish_flag = False
         self.enter = False
@@ -175,6 +176,7 @@ class Game2048(object):
 
     def update_board(self, direction, update=True):
         self.pre_board_number = copy.deepcopy(self.board_number)
+        self.pre_score = self.score
         score = 0
 
         if direction == 0:   # up
