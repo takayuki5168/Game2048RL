@@ -58,16 +58,13 @@ class QNetwork(nn.Module):
         return y
 
 class Agent(object):
-    def __init__(self, env=gym.make('CartPole-v0'), monitor=False,
-                 episode_num=3000, step_num=200, memory_size=10**6, batch_size=100,   # TODO cannot change batch_size
-                 epsilon=1.0, epsilon_decrease=0.001, epsilon_min=0.2, start_reduce_epsilon_step=200,
+    def __init__(self, env=gym.make('CartPole-v0'),
+                 episode_num=10000, step_num=10000, memory_size=10**6, batch_size=1000,   # TODO cannot change batch_size
+                 epsilon=1.0, epsilon_decrease=(1.0 - 0.2)/3000/300, epsilon_min=0.2, start_reduce_epsilon_step=200,
                  train_freq=10, update_target_q_freq=20,
                  gamma=0.97, log_freq=100):
         # variable
         self.env = env
-        self.monitor =  monitor
-        if self.monitor:
-            self.env = wrappers.Monitor(env, "./tmp", force=True)
 
         self.episode_num = episode_num
         self.step_num = step_num   # number of step
@@ -101,18 +98,23 @@ class Agent(object):
         self.memory = ReplayMemory(memory_size)
         self.total_rewards = []   # for recording
 
+        self.log_dir = "log/test1"
+
     def train(self):
-        print("\t".join(["episode", "epsilon", "reward", "total_step", "elapsed_time"]))
+        print("\t".join(map(str,["episode", "epsilon", "reward", "max_score", "max_score_episode", "total_step", "time"]))) # print in stdcout
         start_time = time.time()
         total_step = 0
+
+        max_score = 0
+        max_score_episode = 0
         for episode in range(self.episode_num):
             pobs = self.env.reset() # init environment
             step = 0 # current step
             done = False # flag of finishing current step
             total_reward = 0 # accumulated reward
-            while not done and step < self.step_num:
-                if self.monitor:
-                    self.env.render()
+
+            while not done: # and step < self.step_num:
+                self.env.render()
 
                 # select action with epsilon greedy method
                 if np.random.rand() > self.epsilon:   # calculate optimize action
@@ -195,17 +197,25 @@ class Agent(object):
                 step += 1
                 total_step += 1
                 pobs = obs
-            self.total_rewards.append(total_reward) # memorize accumulated reward
+
+            # memorize accumulated reward
+            self.total_rewards.append(total_reward)
+
+            # calculate max score
+            if max_score < self.env.game.score:
+                max_score = self.env.game.score
+                max_score_episode = episode
+                self.env.game.save(self.log_dir + "/board/" + str(episode) + "_" + str(max_score) + ".jpg")
+
             if (episode + 1) % self.log_freq == 0:
-                r = sum(self.total_rewards[((episode + 1) - self.log_freq):(episode + 1)]) / self.log_freq
+                reward = sum(self.total_rewards[((episode + 1) - self.log_freq):(episode + 1)]) / self.log_freq
                 elapsed_time = time.time() - start_time
-                print("\t".join(map(str,[episode + 1, self.epsilon, r, total_step, str(elapsed_time) + "[sec]"]))) # print in stdcout
+                #print("\t".join(map(str,["episode", "epsilon", "reward", "max score", "total_step", "time"]))) # print in stdcout
+                print("\t".join(map(str,[episode + 1, self.epsilon, reward, max_score, max_score_episode, total_step, str(elapsed_time) + "[sec]"]))) # print in stdcout
                 start_time = time.time()
-        if self.monitor:
-            self.env.render(close=True)
 
 if __name__ == '__main__':
-    agent = Agent(Game2048Env())
+    agent = Agent(Game2048Env(render=False, debug_print=False))
     agent.train()
 
     plt.figure(figsize=(15,7))

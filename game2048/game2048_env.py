@@ -40,8 +40,9 @@ class Game2048Env(gym.Env):
         Solved Requirements
         Considered solved when the average reward is greater than or equal to 195.0 over 100 consecutive trials.
     """
-    def __init__(self, render=True):
-        self.game = Game2048(render)
+    def __init__(self, render=True, debug_print=True):
+        self.game = Game2048(render, debug_print)
+        self.debug_print = debug_print
 
         self.action_space = spaces.Discrete(4)
 
@@ -95,7 +96,7 @@ class Game2048Env(gym.Env):
 
         #print(reward)
         self.reward_sum += reward
-        if done:
+        if self.debug_print and done:
             print("score: {}, max_number: {}, reward_sum: {}".format(self.game.score, 2**max([max(ns) for ns in self.game.board_number]), self.reward_sum))
 
 

@@ -5,6 +5,7 @@ import pyglet
 from pyglet.window import key
 import random
 import copy
+from PIL import Image, ImageDraw, ImageFont
 
 class Game2048(object):
     def reset(self):
@@ -18,8 +19,9 @@ class Game2048(object):
         self.enter = False
         self.pressed = False
 
-    def __init__(self, render=True):
+    def __init__(self, render=True, debug_print=False):
         self.render = render
+        self.debug_print = debug_print
 
         self.window_width = 540
         self.window_height = 640
@@ -119,6 +121,23 @@ class Game2048(object):
         self.window.width = self.window_width
         self.window.height = self.window_height
         self.window.set_caption('This is a pyglet sample')
+
+    def save(self, path):
+        im = Image.new("RGB", (self.window_width, self.window_height), (128, 128, 128))
+        draw = ImageDraw.Draw(im)
+
+        for i in range(len(self.board_number)):
+            for j in range(len(self.board_number[i])):
+                d = 5 * 1 + 4 * 10
+                x = self.board_x_offset + self.board_size / d * 1 + self.board_size / d * i * (10 + 1)
+                y = self.board_y_offset + self.board_size / d * 1 + self.board_size / d * (4 - j) * (10 + 1)
+                box_size = self.board_size / d * 10
+                board_number = "" if self.board_number[j][i] == 0 else str(2**self.board_number[j][i])
+
+                draw.rectangle((x, y, x + box_size, y + box_size), fill=tuple(self.board_color[self.board_number[j][i]]))
+                draw.text((x, y), board_number, fill=(0, 0, 0), font = ImageFont.truetype("arial.ttf", 32))
+        im.save(path)
+
 
     def draw(self):
         if not self.render:
@@ -258,7 +277,8 @@ class Game2048(object):
                 if not finish_flag:
                     break
             if finish_flag:
-                print("finish by no area remaining")
+                if self.debug_print:
+                    print("finish by no area remaining")
                 self.finish_flag = True
                 #print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
                 return 0
@@ -287,7 +307,8 @@ class Game2048(object):
                         finish_flag = False
                         break
             if finish_flag:
-                print("finish by not be able to move")
+                if self.debug_print:
+                    print("finish by not be able to move")
                 self.finish_flag = True
                 #print("score : {}, max_number : {}".format(self.score, 2**max([max(ns) for ns in self.board_number])))
                 return 0
